@@ -9,6 +9,9 @@ updates:
     # Workflow files stored in the
     # default location of `.github/workflows`
     directory: "/"
+    # Updated with the compiler by update-agentic-workflows.yaml.
+    ignore:
+      - dependency-name: "github/gh-aw-actions/*" # Managed by gh aw compile. Version-locked to the gh-aw compiler; do not bump.
     schedule:
       interval: "weekly"
       day: "monday"
@@ -81,6 +84,16 @@ updates:
   - package-ecosystem: "uv"
     directory: "/e2e-tests"
     labels: ["dependencies", "e2e-tests"]
+    # These dependencies have different locked versions across Python versions.
+    # Dependabot's single-version upgrades can fail or downgrade other deps.
+    # Update them with uv, preserving YARF's supported Python versions.
+    ignore:
+      - dependency-name: "attrs"
+      - dependency-name: "cattrs"
+      - dependency-name: "licensecheck"
+      - dependency-name: "markdown"
+      - dependency-name: "numpy"
+      - dependency-name: "onnxruntime"
     schedule:
       interval: "weekly"
       day: "thursday"

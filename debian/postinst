@@ -35,6 +35,8 @@ if [ configure = "$action" ]; then
     pam-auth-update --package
     insert_nss_entry
     /usr/lib/authd/rename-authd-ppa-source.sh
+    /usr/lib/authd/sync-authd-apport-native-origin.sh ||
+        echo "W: could not update authd bug-reporting settings" >&2
 
     # We installed /etc/authd with permissions 777 - umask in versions prior to 0.4.0
     if dpkg --compare-versions "$previous_version" lt-nl "0.4.0~"; then
@@ -49,5 +51,11 @@ if [ configure = "$action" ]; then
     if dpkg --compare-versions "$previous_version" lt-nl "0.5.0~" && \
        command -v /usr/share/update-notifier/notify-reboot-required >/dev/null; then
             /usr/share/update-notifier/notify-reboot-required
+    fi
+
+    if [ -x /etc/ca-certificates/update.d/authd ] && \
+       [ ! -e /var/lib/authd/ca-certificates.sha256 ]; then
+        /etc/ca-certificates/update.d/authd </dev/null ||
+            echo "W: could not initialize the authd CA bundle checksum; the next CA update will retry" >&2
     fi
 fi
